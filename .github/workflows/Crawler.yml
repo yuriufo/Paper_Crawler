@@ -1,0 +1,46 @@
+name: 'Crawler'
+
+on:
+  schedule:
+    - cron: '0 22 * * *'  
+  push:
+    branches:
+      - main
+
+jobs:
+  arxiv-crawler:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Set time zone'
+        run: sudo timedatectl set-timezone 'Asia/Shanghai'
+
+      - name: 'Set up Python3.8'
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: 'Install requirements'
+        run: pip install -r ./requirements.txt
+
+      - name: 'Crawl'
+        run: python arXiv/process.py
+
+      - name: 'Detect changes'
+        id: detect_changes
+        run: if [ -n "$(git status --porcelain)" ]; then echo "::set-output name=changes_detected::yes"; fi
+
+      - name: 'Push changes'
+        if: steps.detect_changes.outputs.changes_detected == 'yes'
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "* update `date '+%Y-%m-%d %H:%M:%S'`"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
