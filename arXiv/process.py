@@ -42,7 +42,7 @@ def load_markdown(markdown_fp):
     with open(markdown_fp, "r", encoding='utf-8') as f:
         raw_markdown = f.read()
 
-    prog = re.compile('<summary>(.+) - (.*)<\/summary>\n\n- \*(.+)\*\n\n- `(.+)`.* \[pdf\]\((.+)\)\n\n> (.+)\n\n<\/details>')
+    prog = re.compile('<summary>(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - (.*)<\/summary>\n\n- \*(.+)\*\n\n- `(.+)`.* \[pdf\]\((.+)\)\n\n> (.+)\n\n<\/details>')
     matches = prog.findall(raw_markdown)
 
     results = []
